@@ -1,0 +1,14 @@
+Source: python-vobject
+Section: python
+Priority: optional
+Maintainer: Guido Guenther <agx@sigxcpu.org>
+Build-Depends: cdbs, debhelper (>= 5), quilt, python-dev, python-support (>= 0.3)
+Standards-Version: 3.7.2
+
+Package: python-vobject
+Architecture: all
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}, python-dateutil
+Description: parse iCalendar and VCards in python
+ Parses iCalendar and vCard files into Python data structures, decoding the
+ relevant encodings. Also serializes vobject data structures to valid iCalendar
+ or vCard unicode strings.

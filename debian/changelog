@@ -1,0 +1,16 @@
+python-vobject (0.0.svn147-2) unstable; urgency=low
+
+  * set pyversions
+  * rm debian/dirs
+
+ -- Guido Guenther <agx@sigxcpu.org>  Thu,  7 Sep 2006 16:23:55 +0200
+
+python-vobject (0.0.svn147-1) unstable; urgency=low
+
+  * Initial release (Closes: #386254)
+  * import icalendar.patch and base.patch:
+      http://trac.macosforge.org/projects/calendarserver/browser/CalendarServer/trunk/patches/vObject/base.patch
+      http://trac.macosforge.org/projects/calendarserver/browser/CalendarServer/trunk/patches/vObject/icalendar.patch
+
+ -- Guido Guenther <agx@sigxcpu.org>  Wed,  6 Sep 2006 11:04:33 +0200
+
