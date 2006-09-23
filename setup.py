@@ -7,16 +7,16 @@ Requires dateutil (https://moin.conectiva.com.br/DateUtil) 0.9 or later.
 """
 
 # not using setuptools until Chandler's ready for eggs
-# from ez_setup import use_setuptools
-# use_setuptools()
+from ez_setup import use_setuptools
+use_setuptools()
 
-# from setuptools import setup, find_packages
+from setuptools import setup, find_packages
 
-from distutils.core import setup
+#from distutils.core import setup
 
 # Metadata
 PACKAGE_NAME = "vobject"
-PACKAGE_VERSION = "0.3.0"
+PACKAGE_VERSION = "0.4.2"
 
 ALL_EXTS = ['*.py', '*.ics', '*.txt']
 
@@ -28,7 +28,7 @@ setup(name = "vobject",
       version = PACKAGE_VERSION,
       author = "Jeffrey Harris",
       author_email = "jeffrey@osafoundation.org",
-      license = "BSD",
+      license = "Apache",
       zip_safe = True,
       url = "http://vobject.skyhouseconsulting.com",
 
