@@ -1,3 +1,14 @@
+python-vobject (0.0.svn155-1) unstable; urgency=low
+
+  * new upstream svn version
+  * update icalendar.patch and base.patch from revision 188 of:
+      http://trac.macosforge.org/projects/calendarserver/browser/CalendarServer/trunk/patches/vObject/base.patch
+      http://trac.macosforge.org/projects/calendarserver/browser/CalendarServer/trunk/patches/vObject/icalendar.patch
+  * call test during build
+  * add versione (>= 1.1) dependency for python-dateutil
+
+ -- Guido Guenther <agx@sigxcpu.org>  Sat, 23 Sep 2006 23:57:41 +0200
+
 python-vobject (0.0.svn147-2) unstable; urgency=low
 
   * set pyversions

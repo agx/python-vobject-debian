@@ -10,3 +10,9 @@ DEB_PYTHON_CLEAN_ARGS = --all
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 include /usr/share/cdbs/1/rules/patchsys-quilt.mk
+
+build/python-vobject::
+	cd tests && PYTHONPATH=src python tests.py
+
+clean::
+	rm -rf src/vobject.egg-info/
