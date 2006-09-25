@@ -1,3 +1,10 @@
+python-vobject (0.0.svn155-2) unstable; urgency=low
+
+  * build depend on python-dateutil so the testuite can run properly. 
+    (Closes: #389385)
+
+ -- Guido Guenther <agx@sigxcpu.org>  Mon, 25 Sep 2006 15:49:10 +0200
+
 python-vobject (0.0.svn155-1) unstable; urgency=low
 
   * new upstream svn version
