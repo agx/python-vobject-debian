@@ -1,15 +1,14 @@
 #!/usr/bin/make -f
   
-DEB_TAR_SRCDIR                  := python-vobject
-DEB_AUTO_CLEANUP_RCS            := yes
-
 DEB_PYTHON_SYSTEM = pysupport
-DEB_PYTHON_CLEAN_ARGS = --all
 
 # Add here any variable or target overrides you need
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 include /usr/share/cdbs/1/rules/patchsys-quilt.mk
+
+DEB_PYTHON_CLEAN_ARGS = --all
+DEB_PYTHON_INSTALL_ARGS_ALL += --single-version-externally-managed
 
 build/python-vobject::
 	cd tests && PYTHONPATH=src python tests.py
