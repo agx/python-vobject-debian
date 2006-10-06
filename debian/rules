@@ -13,5 +13,3 @@ DEB_PYTHON_INSTALL_ARGS_ALL += --single-version-externally-managed
 build/python-vobject::
 	cd tests && PYTHONPATH=src python tests.py
 
-clean::
-	rm -rf src/vobject.egg-info/

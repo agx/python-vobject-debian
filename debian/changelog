@@ -1,3 +1,10 @@
+python-vobject (0.4.3-1) unstable; urgency=low
+
+  * New Upstream (non SVN!) Version
+  * cdbs cleanups
+
+ -- Guido Guenther <agx@sigxcpu.org>  Sat,  7 Oct 2006 00:50:15 +0200
+
 python-vobject (0.0.svn155-2) unstable; urgency=low
 
   * build depend on python-dateutil so the testuite can run properly. 
