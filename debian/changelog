@@ -1,3 +1,9 @@
+python-vobject (0.4.3-2) unstable; urgency=low
+
+  * depend on python-setuptools (Closes: #391881).
+
+ -- Guido Guenther <agx@sigxcpu.org>  Mon,  9 Oct 2006 13:26:12 +0200
+
 python-vobject (0.4.3-1) unstable; urgency=low
 
   * New Upstream (non SVN!) Version
