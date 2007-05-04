@@ -2,7 +2,7 @@ Source: python-vobject
 Section: python
 Priority: optional
 Maintainer: Guido Guenther <agx@sigxcpu.org>
-Build-Depends: cdbs, debhelper (>= 5), quilt, python-dev, python-support (>= 0.3), python-dateutil, python-setuptools
+Build-Depends: cdbs, debhelper (>= 5), python-dev, python-support (>= 0.3), python-dateutil, python-setuptools
 Standards-Version: 3.7.2
 
 Package: python-vobject
