@@ -367,11 +367,11 @@ class RecurringComponent(Component):
                     rruleset = dateutil.rrule.rruleset()
                 if addfunc is None:
                     addfunc=getattr(rruleset, name)
-                
+
                 if name in DATENAMES:
                     if type(line.value[0]) == datetime.datetime:
                         map(addfunc, line.value)
-                    elif type(line.value) == datetime.date:
+                    elif type(line.value[0]) == datetime.date:
                         for dt in line.value:
                             addfunc(datetime.datetime(dt.year, dt.month, dt.day))
                     else:
@@ -404,11 +404,14 @@ class RecurringComponent(Component):
                         vals = dict(pair.split('=') for pair in
                                     line.value.upper().split(';'))
                         if len(vals.get('UNTIL', '')) == 8:
-                            # it's not entirely clear, but presumably a date
-                            # valued UNTIL should include that date
                             until = datetime.datetime.combine(until.date(),
                                                               dtstart.time())
-                        rule._until = until.replace(tzinfo=dtstart.tzinfo)
+                            until = until.replace(tzinfo=dtstart.tzinfo)
+
+                        if dtstart.tzinfo is not None:
+                            until = until.astimezone(dtstart.tzinfo)
+
+                        rule._until = until
                     
                     # add the rrule or exrule to the rruleset
                     addfunc(rule)
@@ -544,10 +547,44 @@ class RecurringComponent(Component):
         else:
             super(RecurringComponent, self).__setattr__(name, value)
 
-class RecurringBehavior(behavior.Behavior):
+class TextBehavior(behavior.Behavior):
+    """Provide backslash escape encoding/decoding for single valued properties.
+    
+    TextBehavior also deals with base64 encoding if the ENCODING parameter is
+    explicitly set to BASE64.
+    
+    """
+    base64string = 'BASE64' # vCard uses B
+    
+    @classmethod
+    def decode(cls, line):
+        """Remove backslash escaping from line.value."""
+        if line.encoded:
+            encoding = getattr(line, 'encoding_param', None)
+            if encoding and encoding.upper() == cls.base64string:
+                line.value = line.value.decode('base64')
+            else:
+                line.value = stringToTextValues(line.value)[0]
+            line.encoded=False
+    
+    @classmethod
+    def encode(cls, line):
+        """Backslash escape line.value."""
+        if not line.encoded:
+            encoding = getattr(line, 'encoding_param', None)
+            if encoding and encoding.upper() == cls.base64string:
+                line.value = line.value.encode('base64').replace('\n', '')
+            else:
+                line.value = backslashEscape(line.value)
+            line.encoded=True
+
+class VCalendarComponentBehavior(behavior.Behavior):
+    defaultBehavior = TextBehavior
+    isComponent = True
+
+class RecurringBehavior(VCalendarComponentBehavior):
     """Parent Behavior for components which should be RecurringComponents."""
     hasNative = True
-    isComponent = True
     
     @staticmethod
     def transformToNative(obj):
@@ -638,7 +675,7 @@ class DateOrDateTimeBehavior(behavior.Behavior):
         obj.isNative = True
         if obj.value == '': return obj
         obj.value=str(obj.value)
-        obj.value=parseDtstart(obj)
+        obj.value=parseDtstart(obj, allowSignatureMismatch=True)
         if getattr(obj, 'value_param', 'DATE-TIME').upper() == 'DATE-TIME':
             if hasattr(obj, 'tzid_param'):
                 # Keep a copy of the original TZID around
@@ -715,37 +752,6 @@ class MultiDateBehavior(behavior.Behavior):
                 obj.value = ','.join(transformed)
             return obj
 
-class TextBehavior(behavior.Behavior):
-    """Provide backslash escape encoding/decoding for single valued properties.
-    
-    TextBehavior also deals with base64 encoding if the ENCODING parameter is
-    explicitly set to BASE64.
-    
-    """
-    base64string = 'BASE64' # vCard uses B
-    
-    @classmethod
-    def decode(cls, line):
-        """Remove backslash escaping from line.value."""
-        if line.encoded:
-            encoding = getattr(line, 'encoding_param', None)
-            if encoding and encoding.upper() == cls.base64string:
-                line.value = line.value.decode('base64')
-            else:
-                line.value = stringToTextValues(line.value)[0]
-            line.encoded=False
-    
-    @classmethod
-    def encode(cls, line):
-        """Backslash escape line.value."""
-        if not line.encoded:
-            encoding = getattr(line, 'encoding_param', None)
-            if encoding and encoding.upper() == cls.base64string:
-                line.value = line.value.encode('base64').replace('\n', '')
-            else:
-                line.value = backslashEscape(line.value)
-            line.encoded=True
-
 class MultiTextBehavior(behavior.Behavior):
     """Provide backslash escape encoding/decoding of each of several values.
     
@@ -769,12 +775,11 @@ class MultiTextBehavior(behavior.Behavior):
     
 
 #------------------------ Registered Behavior subclasses -----------------------
-class VCalendar2_0(behavior.Behavior):
+class VCalendar2_0(VCalendarComponentBehavior):
     """vCalendar 2.0 behavior."""
     name = 'VCALENDAR'
     description = 'vCalendar 2.0, also known as iCalendar.'
     versionString = '2.0'
-    isComponent = True
     sortFirst = ('version', 'calscale', 'method', 'prodid', 'vtimezone')
     knownChildren = {'CALSCALE':  (0, 1, None),#min, max, behaviorRegistry id
                      'METHOD':    (0, 1, None),
@@ -832,11 +837,10 @@ class VCalendar2_0(behavior.Behavior):
                 obj.add(TimezoneComponent(tzinfo=getTzid(tzid)))
 registerBehavior(VCalendar2_0)
 
-class VTimezone(behavior.Behavior):
+class VTimezone(VCalendarComponentBehavior):
     """Timezone behavior."""
     name = 'VTIMEZONE'
     hasNative = True
-    isComponent = True
     description = 'A grouping of component properties that defines a time zone.'
     sortFirst = ('tzid', 'last-modified', 'tzurl', 'standard', 'daylight')
     knownChildren = {'TZID':         (1, 1, None),#min, max, behaviorRegistry id
@@ -878,10 +882,10 @@ class VTimezone(behavior.Behavior):
         
 registerBehavior(VTimezone)
 
-class DaylightOrStandard(behavior.Behavior):
+class DaylightOrStandard(VCalendarComponentBehavior):
     hasNative = False
-    isComponent = True
-    knownChildren = {'DTSTART':      (1, 1, None)}#min, max, behaviorRegistry id
+    knownChildren = {'DTSTART':      (1, 1, None),#min, max, behaviorRegistry id
+                     'RRULE':        (0, 1, None)}
 
 registerBehavior(DaylightOrStandard, 'STANDARD')
 registerBehavior(DaylightOrStandard, 'DAYLIGHT')
@@ -1029,7 +1033,7 @@ class VJournal(RecurringBehavior):
 registerBehavior(VJournal)
 
 
-class VFreeBusy(behavior.Behavior):
+class VFreeBusy(VCalendarComponentBehavior):
     """Free/busy state behavior.
 
     >>> vfb = newFromBehavior('VFREEBUSY')
@@ -1047,7 +1051,6 @@ class VFreeBusy(behavior.Behavior):
 
     """
     name='VFREEBUSY'
-    isComponent = True
     description='A grouping of component properties that describe either a \
                  request for free/busy time, describe a response to a request \
                  for free/busy time or describe a published set of busy time.'
@@ -1068,10 +1071,9 @@ class VFreeBusy(behavior.Behavior):
 registerBehavior(VFreeBusy)
 
 
-class VAlarm(behavior.Behavior):
+class VAlarm(VCalendarComponentBehavior):
     """Alarm behavior."""
     name='VALARM'
-    isComponent = True
     description='Alarms describe when and how to provide alerts about events \
                  and to-dos.'
     knownChildren = {'ACTION':       (1, 1, None),#min, max, behaviorRegistry id
@@ -1313,6 +1315,14 @@ class FreeBusy(PeriodBehavior):
     forceUTC = True
 registerBehavior(FreeBusy)
 
+class RRule(behavior.Behavior):
+    """
+    Dummy behavior to avoid having RRULEs being treated as text lines (and thus
+    having semi-colons inaccurately escaped).
+    """
+registerBehavior(RRule, 'RRULE')
+registerBehavior(RRule, 'EXRULE')
+
 #------------------------ Registration of common classes -----------------------
 
 utcDateTimeList = ['LAST-MODIFIED', 'CREATED', 'COMPLETED', 'DTSTAMP']
@@ -1426,8 +1436,7 @@ def isDuration(s):
     s = string.upper(s)
     return (string.find(s, "P") != -1) and (string.find(s, "P") < 2)
 
-def stringToDate(s, tzinfos=None):
-    if tzinfos != None: print "Didn't expect a tzinfos here"
+def stringToDate(s):
     year  = int( s[0:4] )
     month = int( s[4:6] )
     day   = int( s[6:8] )
@@ -1452,11 +1461,14 @@ def stringToDateTime(s, tzinfo=None):
 
 escapableCharList = "\\;,Nn"
 
-def stringToTextValues(s, strict=False):
+def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
     """Returns list of strings."""
+    
+    if charList is None:
+        charList = escapableCharList
 
     def escapableChar (c):
-        return c in escapableCharList
+        return c in charList
 
     def error(msg):
         if strict:
@@ -1481,7 +1493,7 @@ def stringToTextValues(s, strict=False):
         if state == "read normal":
             if char == '\\':
                 state = "read escaped char"
-            elif char == ',':
+            elif char == listSeparator:
                 state = "read normal"
                 results.append(current)
                 current = ""
@@ -1500,7 +1512,8 @@ def stringToTextValues(s, strict=False):
                     current = current + char
             else:
                 state = "read normal"
-                current = current + char #this is an error, but whatever
+                # leave unrecognized escaped characters for later passes
+                current = current + '\\' + char 
 
         elif state == "end":    #an end state
             if current != "" or len(results) == 0:
@@ -1630,13 +1643,26 @@ def stringToDurations(s, strict=False):
             state = "error"
             error("error: unknown state: '%s' reached in %s" % (state, s))
 
-def parseDtstart(contentline):
+def parseDtstart(contentline, allowSignatureMismatch=False):
+    """Convert a contentline's value into a date or date-time.
+    
+    A variety of clients don't serialize dates with the appropriate VALUE
+    parameter, so rather than failing on these (technically invalid) lines,
+    if allowSignatureMismatch is True, try to parse both varieties.
+    
+    """
     tzinfo = getTzid(getattr(contentline, 'tzid_param', None))
     valueParam = getattr(contentline, 'value_param', 'DATE-TIME').upper()
     if valueParam == "DATE":
         return stringToDate(contentline.value)
     elif valueParam == "DATE-TIME":
-        return stringToDateTime(contentline.value, tzinfo)
+        try:
+            return stringToDateTime(contentline.value, tzinfo)
+        except:
+            if allowSignatureMismatch:
+                return stringToDate(contentline.value)
+            else:
+                raise
 
 def stringToPeriod(s, tzinfo=None):
     values   = string.split(s, "/")

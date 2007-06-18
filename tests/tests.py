@@ -8,7 +8,7 @@ sys.path.insert( 0, os.path.join( basepath, 'src', 'vobject' ) )
 import base, icalendar, behavior, vcard, hcalendar
 import StringIO, re, dateutil.tz, datetime
 
-
+base.logger.setLevel(base.logging.FATAL)
 #------------------- Testing and running functions -----------------------------
 def _test():
     import doctest, base, tests, icalendar, __init__, re
@@ -78,18 +78,39 @@ END:DAYLIGHT
 END:VTIMEZONE
 END:VCALENDAR"""
 
-vcardtest = """BEGIN:VCARD
+badDtStartTest="""BEGIN:VCALENDAR
+METHOD:PUBLISH
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:20021028
+DTSTAMP:20021028T011706Z
+SUMMARY:Coffee with Jason
+UID:EC9439B1-FF65-11D6-9973-003065F99D04
+END:VEVENT
+END:VCALENDAR"""
+
+badLineTest="""BEGIN:VCALENDAR
+METHOD:PUBLISH
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:19870405T020000
+X-BAD_UNDERSCORE:TRUE
+UID:EC9439B1-FF65-11D6-9973-003065F99D04
+END:VEVENT
+END:VCALENDAR"""
+
+vcardtest =r"""BEGIN:VCARD
 VERSION:3.0
 FN:Daffy Duck Knudson (with Bugs Bunny and Mr. Pluto)
 N:Knudson;Daffy Duck (with Bugs Bunny and Mr. Pluto)
 NICKNAME:gnat and gnu and pluto
-BDAY;value=date:02-10;11-05;01-01
+BDAY;value=date:02-10
 TEL;type=HOME:+01-(0)2-765.43.21
 TEL;type=CELL:+01-(0)5-555.55.55
 ACCOUNT;type=HOME:010-1234567-05
-ADR;type=HOME:;;Haight Street 512;Novosibirsk;;80214;Gnuland
+ADR;type=HOME:;;Haight Street 512\;\nEscape\, Test;Novosibirsk;;80214;Gnuland
 TEL;type=HOME:+01-(0)2-876.54.32
-ORG:University of Novosibirsk, Department of Octopus
+ORG:University of Novosibirsk\, Department of Octopus
   Parthenogenesis
 END:VCARD"""
 
@@ -103,8 +124,8 @@ bday;value=date:1963-09-21
 o:Universit=E6t G=F6rlitz
 title:Mayor
 title;language=de;value=text:Burgermeister
-note:The Mayor of the great city of
-  Goerlitz in the great country of Germany.
+note:The Mayor of the great city of 
+  Goerlitz in the great country of Germany.\nNext line.
 email;internet:mb@goerlitz.de
 home.tel;type=fax,voice;type=msg:+49 3581 123456
 home.label:Hufenshlagel 1234\n
@@ -333,6 +354,15 @@ __test__ = { "Test readOne" :
     Traceback (most recent call last):
     ...
     ParseError: At line 11: TRIGGER with no VALUE not recognized as DURATION or as DATE-TIME
+    >>> cal = base.readOne(badLineTest)
+    Traceback (most recent call last):
+    ...
+    ParseError: At line 6: Failed to parse line: X-BAD_UNDERSCORE:TRUE
+    >>> cal = base.readOne(badLineTest, ignoreUnreadable=True)
+    >>> cal.x_bad_underscore
+    Traceback (most recent call last):
+    ...
+    AttributeError: x_bad_underscore
     """,
 
     "ical trigger workaround" :
@@ -591,6 +621,14 @@ __test__ = { "Test readOne" :
     END:VCALENDAR
     """,
     
+    "Handling DATE without a VALUE=DATE" :
+    
+    """
+    >>> cal = base.readOne(badDtStartTest)
+    >>> cal.vevent.dtstart.value
+    datetime.date(2002, 10, 28)
+    """,
+
     "Serializing iCalendar to hCalendar" :
     
     """
@@ -645,9 +683,10 @@ __test__ = { "Test readOne" :
     r"""
     >>> card = base.readOne(vcardtest)
     >>> card.adr.value
-    <Address: Haight Street 512\nNovosibirsk,  80214\nGnuland>
+    <Address: Haight Street 512;\nEscape, Test\nNovosibirsk,  80214\nGnuland>
     >>> print card.adr.value
-    Haight Street 512
+    Haight Street 512;
+    Escape, Test
     Novosibirsk,  80214
     Gnuland
     >>> card.org.value
@@ -656,12 +695,13 @@ __test__ = { "Test readOne" :
     BEGIN:VCARD
     VERSION:3.0
     ACCOUNT;TYPE=HOME:010-1234567-05
-    ADR;TYPE=HOME:;;Haight Street 512;Novosibirsk;;80214;Gnuland
-    BDAY;VALUE=date:02-10;11-05;01-01
+    ADR;TYPE=HOME:;;Haight Street 512\;\nEscape\, Test;Novosibirsk;;80214;Gnula
+     nd
+    BDAY;VALUE=date:02-10
     FN:Daffy Duck Knudson (with Bugs Bunny and Mr. Pluto)
     N:Knudson;Daffy Duck (with Bugs Bunny and Mr. Pluto);;;
     NICKNAME:gnat and gnu and pluto
-    ORG:University of Novosibirsk, Department of Octopus Parthenogenesis
+    ORG:University of Novosibirsk\, Department of Octopus Parthenogenesis
     TEL;TYPE=HOME:+01-(0)2-765.43.21
     TEL;TYPE=CELL:+01-(0)5-555.55.55
     TEL;TYPE=HOME:+01-(0)2-876.54.32
@@ -707,5 +747,18 @@ __test__ = { "Test readOne" :
     >>> card = base.readOne(lowercaseComponentNames)
     >>> card.version
     <VERSION{}2.1>
+    """,
+
+    "Default behavior test" :
+             
+    """
+    >>> card = base.readOne(vcardWithGroups)
+    >>> base.getBehavior('note') == None
+    True
+    >>> card.note.behavior
+    <class 'vcard.VCardTextBehavior'>
+    >>> print card.note.value
+    The Mayor of the great city of  Goerlitz in the great country of Germany.
+    Next line.
     """
     }

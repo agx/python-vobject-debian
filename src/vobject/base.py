@@ -94,6 +94,10 @@ class VBase(object):
                     self.setBehavior(behavior, cascade)
                     if isinstance(self, ContentLine) and self.encoded:
                         self.behavior.decode(self)
+            elif isinstance(self, ContentLine):
+                self.behavior = parentBehavior.defaultBehavior   
+                if self.encoded and self.behavior:
+                    self.behavior.decode(self)
 
     def setBehavior(self, behavior, cascade=True):
         """Set behavior. If cascade is True, autoBehavior all descendants."""
@@ -500,6 +504,9 @@ class Component(VBase):
                 obj = obj.transformToNative()     
             except (KeyError, AttributeError):
                 obj = ContentLine(objOrName, [], '', group)
+            if obj.behavior is None and self.behavior is not None:
+                if isinstance(obj, ContentLine):
+                    obj.behavior = self.behavior.defaultBehavior
         self.contents.setdefault(obj.name.lower(), []).append(obj)
         return obj
 
@@ -756,20 +763,27 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
     """
     if not allowQP:
         bytes = fp.read(-1)
-        if type(bytes[0]) == unicode:
-            val = bytes
-        elif not findBegin:
-            val = bytes.decode('utf-8')
-        else:
-            for encoding in 'utf-8', 'utf-16-LE', 'utf-16-BE':
-                try:
-                    val = bytes.decode(encoding)
-                    if begin_re.search(val) is not None:
-                        break
-                except UnicodeDecodeError:
-                    pass
+        if len(bytes) > 0:
+            if type(bytes[0]) == unicode:
+                val = bytes
+            elif not findBegin:
+                val = bytes.decode('utf-8')
             else:
-                raise ParseError, 'Could not find BEGIN when trying to determine encoding'
+                for encoding in 'utf-8', 'utf-16-LE', 'utf-16-BE', 'iso-8859-1':
+                    try:
+                        val = bytes.decode(encoding)
+                        if begin_re.search(val) is not None:
+                            break
+                    except UnicodeDecodeError:
+                        pass
+                else:
+                    raise ParseError, 'Could not find BEGIN when trying to determine encoding'
+        else:
+            val = bytes
+        
+        # strip off any UTF8 BOMs which Python's UTF8 decoder leaves
+
+        val = val.lstrip( unicode( codecs.BOM_UTF8, "utf8" ) )
 
         lineNumber = 1
         for match in logical_lines_re.finditer(val):
@@ -868,7 +882,6 @@ def defaultSerialize(obj, buf, lineLength):
         
     elif isinstance(obj, ContentLine):
         startedEncoded = obj.encoded
-        #TODO: X- lines should be considered TEXT, and should be encoded as such
         if obj.behavior and not startedEncoded: obj.behavior.encode(obj)
         s=StringIO.StringIO() #unfolded buffer
         if obj.group is not None:
@@ -914,7 +927,8 @@ class Stack:
     def push(self, obj): self.stack.append(obj)
     def pop(self): return self.stack.pop()
 
-def readComponents(streamOrString, validate=False, transform=True, findBegin=True):
+def readComponents(streamOrString, validate=False, transform=True,
+                   findBegin=True, ignoreUnreadable=False):
     """Generate one Component at a time from a stream.
 
     >>> import StringIO
@@ -934,7 +948,19 @@ def readComponents(streamOrString, validate=False, transform=True, findBegin=Tru
     versionLine = None
     n = 0
     for line, n in getLogicalLines(stream, False, findBegin):
-        vline = textLineToContentLine(line, n)
+        if ignoreUnreadable:
+            try:
+                vline = textLineToContentLine(line, n)
+            except VObjectError, e:
+                if e.lineNumber is not None:
+                    msg = "Skipped line %(lineNumber)s, message: %(msg)s"
+                else:
+                    msg = "Skipped a line, message: %(msg)s"
+                logger.error(msg % {'lineNumber' : e.lineNumber, 
+                                    'msg' : e.message})
+                continue
+        else:
+            vline = textLineToContentLine(line, n)
         if   vline.name == "VERSION":
             versionLine = vline
             stack.modifyTop(vline)
@@ -969,9 +995,11 @@ def readComponents(streamOrString, validate=False, transform=True, findBegin=Tru
         yield stack.pop()
 
 
-def readOne(stream, validate=False, transform=True, findBegin=True):
+def readOne(stream, validate=False, transform=True, findBegin=True,
+            ignoreUnreadable=False):
     """Return the first component from stream."""
-    return readComponents(stream, validate, transform, findBegin).next()
+    return readComponents(stream, validate, transform, findBegin,
+                          ignoreUnreadable).next()
 
 #--------------------------- version registry ----------------------------------
 __behaviorRegistry={}
