@@ -1,3 +1,10 @@
+python-vobject (0.4.8-1) unstable; urgency=low
+
+  * New Upstream Version (Closes: #421894) 
+  * remove_ics_diff.patch: don't install /usr/bin/ics_diff
+
+ -- Guido Guenther <agx@sigxcpu.org>  Mon, 18 Jun 2007 18:30:30 +0200
+
 python-vobject (0.4.4-1.1) unstable; urgency=medium
 
   * Non-maintainer upload.
