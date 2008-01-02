@@ -4,6 +4,8 @@ Priority: optional
 Maintainer: Guido Guenther <agx@sigxcpu.org>
 Build-Depends: cdbs, debhelper (>= 5), python-dev, python-support (>= 0.3), python-dateutil, python-setuptools, quilt
 Standards-Version: 3.7.2
+Vcs-Git: git://git.debian.org/git/calendarserver/python-vobject.git
+Vcs-Browser: http://git.debian.org/?p=calendarserver/python-vobject.git
 
 Package: python-vobject
 Architecture: all
