@@ -10,9 +10,9 @@ import exceptions
 import codecs
 
 #------------------------------------ Logging ----------------------------------
-logger = logging.getLogger('vobject')
-if not logger.handlers:
-    handler=logging.StreamHandler()
+logger = logging.getLogger(__name__)
+if not logging.getLogger().handlers:
+    handler = logging.StreamHandler()
     formatter = logging.Formatter('%(name)s %(levelname)s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
@@ -444,6 +444,8 @@ class Component(VBase):
         """
         if name not in self.normal_attributes and name.lower()==name:
             if type(value) == list:
+                if name.endswith('_list'):
+                    name = name[:-5]
                 self.contents[toVName(name)] = value
             elif name.endswith('_list'):
                 raise VObjectError("Component list set to a non-list")
@@ -927,6 +929,7 @@ class Stack:
     def push(self, obj): self.stack.append(obj)
     def pop(self): return self.stack.pop()
 
+
 def readComponents(streamOrString, validate=False, transform=True,
                    findBegin=True, ignoreUnreadable=False):
     """Generate one Component at a time from a stream.
@@ -944,55 +947,61 @@ def readComponents(streamOrString, validate=False, transform=True,
         stream = StringIO.StringIO(streamOrString)
     else:
         stream = streamOrString
-    stack = Stack()
-    versionLine = None
-    n = 0
-    for line, n in getLogicalLines(stream, False, findBegin):
-        if ignoreUnreadable:
-            try:
-                vline = textLineToContentLine(line, n)
-            except VObjectError, e:
-                if e.lineNumber is not None:
-                    msg = "Skipped line %(lineNumber)s, message: %(msg)s"
-                else:
-                    msg = "Skipped a line, message: %(msg)s"
-                logger.error(msg % {'lineNumber' : e.lineNumber, 
-                                    'msg' : e.message})
-                continue
-        else:
-            vline = textLineToContentLine(line, n)
-        if   vline.name == "VERSION":
-            versionLine = vline
-            stack.modifyTop(vline)
-        elif vline.name == "BEGIN":
-            stack.push(Component(vline.value, group=vline.group))
-        elif vline.name == "PROFILE":
-            if not stack.top(): stack.push(Component())
-            stack.top().setProfile(vline.value)
-        elif vline.name == "END":
-            if len(stack) == 0:
-                err = "Attempted to end the %s component, \
-                       but it was never opened" % vline.value
-                raise ParseError(err, n)
-            if vline.value.upper() == stack.topName(): #START matches END
-                if len(stack) == 1:
-                    component=stack.pop()
-                    if versionLine is not None:
-                        component.setBehaviorFromVersionLine(versionLine)
-                    if validate: component.validate(raiseException=True)
-                    if transform: component.transformChildrenToNative()
-                    yield component #EXIT POINT
-                else: stack.modifyTop(stack.pop())
+
+    try:
+        stack = Stack()
+        versionLine = None
+        n = 0
+        for line, n in getLogicalLines(stream, False, findBegin):
+            if ignoreUnreadable:
+                try:
+                    vline = textLineToContentLine(line, n)
+                except VObjectError, e:
+                    if e.lineNumber is not None:
+                        msg = "Skipped line %(lineNumber)s, message: %(msg)s"
+                    else:
+                        msg = "Skipped a line, message: %(msg)s"
+                    logger.error(msg % {'lineNumber' : e.lineNumber, 
+                                        'msg' : e.message})
+                    continue
             else:
-                err = "%s component wasn't closed" 
-                raise ParseError(err % stack.topName(), n)
-        else: stack.modifyTop(vline) #not a START or END line
-    if stack.top():
-        if stack.topName() is None:
-            logger.warning("Top level component was never named")
-        elif stack.top().useBegin:
-            raise ParseError("Component %s was never closed" % (stack.topName()), n)
-        yield stack.pop()
+                vline = textLineToContentLine(line, n)
+            if   vline.name == "VERSION":
+                versionLine = vline
+                stack.modifyTop(vline)
+            elif vline.name == "BEGIN":
+                stack.push(Component(vline.value, group=vline.group))
+            elif vline.name == "PROFILE":
+                if not stack.top(): stack.push(Component())
+                stack.top().setProfile(vline.value)
+            elif vline.name == "END":
+                if len(stack) == 0:
+                    err = "Attempted to end the %s component, \
+                           but it was never opened" % vline.value
+                    raise ParseError(err, n)
+                if vline.value.upper() == stack.topName(): #START matches END
+                    if len(stack) == 1:
+                        component=stack.pop()
+                        if versionLine is not None:
+                            component.setBehaviorFromVersionLine(versionLine)
+                        if validate: component.validate(raiseException=True)
+                        if transform: component.transformChildrenToNative()
+                        yield component #EXIT POINT
+                    else: stack.modifyTop(stack.pop())
+                else:
+                    err = "%s component wasn't closed" 
+                    raise ParseError(err % stack.topName(), n)
+            else: stack.modifyTop(vline) #not a START or END line
+        if stack.top():
+            if stack.topName() is None:
+                logger.warning("Top level component was never named")
+            elif stack.top().useBegin:
+                raise ParseError("Component %s was never closed" % (stack.topName()), n)
+            yield stack.pop()
+
+    except ParseError, e:
+        e.input = streamOrString
+        raise
 
 
 def readOne(stream, validate=False, transform=True, findBegin=True,
