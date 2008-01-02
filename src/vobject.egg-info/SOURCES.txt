@@ -21,6 +21,7 @@ src/vobject.egg-info/entry_points.txt
 src/vobject.egg-info/requires.txt
 src/vobject.egg-info/top_level.txt
 src/vobject.egg-info/zip-safe
+tests/more_tests.txt
 tests/recurrence.ics
 tests/tests.py
 tests/utf8_test.ics
