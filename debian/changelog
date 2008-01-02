@@ -1,3 +1,13 @@
+python-vobject (0.4.9-1) unstable; urgency=low
+
+  * New Upstream Version (Closes: #458188)
+  * update upstream URL
+  * add watch file
+  * add VCS-* fields
+  * bump standards version
+
+ -- Guido Guenther <agx@sigxcpu.org>  Wed, 02 Jan 2008 10:59:16 +0100
+
 python-vobject (0.4.8-1) unstable; urgency=low
 
   * New Upstream Version (Closes: #421894) 
