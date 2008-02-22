@@ -11,5 +11,5 @@ DEB_PYTHON_CLEAN_ARGS = --all
 DEB_PYTHON_INSTALL_ARGS_ALL += --single-version-externally-managed
 
 build/python-vobject::
-	cd tests && PYTHONPATH=src python tests.py
+	cd tests && PYTHONPATH=../src python tests.py
 
