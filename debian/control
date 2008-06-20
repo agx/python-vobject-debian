@@ -6,6 +6,7 @@ Build-Depends: cdbs, debhelper (>= 5), python-dev, python-support (>= 0.3), pyth
 Standards-Version: 3.7.3
 Vcs-Git: git://git.debian.org/git/calendarserver/python-vobject.git
 Vcs-Browser: http://git.debian.org/?p=calendarserver/python-vobject.git
+Homepage: http://vobject.skyhouseconsulting.com/
 
 Package: python-vobject
 Architecture: all
