@@ -1,31 +1,32 @@
 """Long or boring tests for vobjects."""
 
-# add source directory to front of sys path
-import sys, os
-basepath = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert( 0, os.path.join( basepath, 'src', 'vobject' ) )
-
-import base, icalendar, behavior, vcard, hcalendar
+import vobject
+from vobject import base, icalendar, behavior, vcard, hcalendar
 import StringIO, re, dateutil.tz, datetime
+
+import doctest, test_vobject, unittest
+
+from pkg_resources import resource_stream
 
 base.logger.setLevel(base.logging.FATAL)
 #------------------- Testing and running functions -----------------------------
-def _test():
-    import doctest, base, tests, icalendar, __init__, re
+# named additional_tests for setuptools
+def additional_tests():
+
     flags = doctest.NORMALIZE_WHITESPACE | doctest.REPORT_ONLY_FIRST_FAILURE
-    for mod in base, tests, icalendar, __init__, vcard:
-        doctest.testmod(mod, verbose=0, optionflags=flags)
-    doctest.testfile('more_tests.txt', optionflags=flags)
-    try:
-        sys.path.pop()
-        sys.path.insert( 0, os.path.join( basepath, 'src' ) )
-        doctest.testfile('../README.txt', optionflags=flags)
-    except IOError: #allow this test to fail if we can't find README.txt
-        pass
-    
+    suite = unittest.TestSuite()
+    for module in base, test_vobject, icalendar, vobject, vcard:
+        suite.addTest(doctest.DocTestSuite(module, optionflags=flags))
+
+    suite.addTest(doctest.DocFileSuite(
+        'README.txt', 'test_files/more_tests.txt',
+        package='__main__', optionflags=flags
+    ))
+    return suite
     
 if __name__ == '__main__':
-    _test()
+    runner = unittest.TextTestRunner()
+    runner.run(additional_tests())
 
 
 testSilly="""
@@ -95,6 +96,7 @@ METHOD:PUBLISH
 VERSION:2.0
 BEGIN:VEVENT
 DTSTART:19870405T020000
+X-BAD/SLASH:TRUE
 X-BAD_UNDERSCORE:TRUE
 UID:EC9439B1-FF65-11D6-9973-003065F99D04
 END:VEVENT
@@ -360,12 +362,14 @@ __test__ = { "Test readOne" :
     >>> cal = base.readOne(badLineTest)
     Traceback (most recent call last):
     ...
-    ParseError: At line 6: Failed to parse line: X-BAD_UNDERSCORE:TRUE
+    ParseError: At line 6: Failed to parse line: X-BAD/SLASH:TRUE
     >>> cal = base.readOne(badLineTest, ignoreUnreadable=True)
-    >>> cal.x_bad_underscore
+    >>> cal.vevent.x_bad_slash
     Traceback (most recent call last):
     ...
-    AttributeError: x_bad_underscore
+    AttributeError: x_bad_slash
+    >>> cal.vevent.x_bad_underscore
+    <X-BAD-UNDERSCORE{}TRUE>
     """,
 
     "ical trigger workaround" :
@@ -380,7 +384,7 @@ __test__ = { "Test readOne" :
     
     "unicode test" :
     r"""
-    >>> f = open(os.path.join(basepath, 'tests', 'utf8_test.ics'))
+    >>> f = resource_stream(__name__, 'test_files/utf8_test.ics')
     >>> vevent = base.readOne(f).vevent
     >>> vevent.summary.value
     u'The title \u3053\u3093\u306b\u3061\u306f\u30ad\u30c6\u30a3'
@@ -392,7 +396,7 @@ __test__ = { "Test readOne" :
     # and include that day (12/28 in this test)
     "recurrence test" :
     r"""
-    >>> f = file(os.path.join(basepath, 'tests', 'recurrence.ics'))
+    >>> f = resource_stream(__name__, 'test_files/recurrence.ics')
     >>> cal = base.readOne(f)
     >>> dates = list(cal.vevent.rruleset)
     >>> dates[0]
@@ -638,7 +642,7 @@ __test__ = { "Test readOne" :
     """
     >>> cal = base.newFromBehavior('hcalendar')
     >>> cal.behavior
-    <class 'hcalendar.HCalendar'>
+    <class 'vobject.hcalendar.HCalendar'>
     >>> pacific = dateutil.tz.tzical(StringIO.StringIO(timezones)).get('US/Pacific')
     >>> cal.add('vevent')
     <VEVENT| []>
@@ -760,7 +764,7 @@ __test__ = { "Test readOne" :
     >>> base.getBehavior('note') == None
     True
     >>> card.note.behavior
-    <class 'vcard.VCardTextBehavior'>
+    <class 'vobject.vcard.VCardTextBehavior'>
     >>> print card.note.value
     The Mayor of the great city of  Goerlitz in the great country of Germany.
     Next line.
