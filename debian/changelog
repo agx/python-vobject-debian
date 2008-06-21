@@ -1,3 +1,14 @@
+python-vobject (0.6.6-1) experimental; urgency=low
+
+  * Upload to experimental since it breaks calendarserver:
+          http://trac.calendarserver.org/ticket/287
+  * [bd308fb] new upstream version 0.6.6
+  * [59a6bae] refresh remove_ics_diff.patch
+  * [2a0a9d9] bump standards version to 3.8.0
+  * [096502c] debian/control: add Homepage:
+
+ -- Guido Guenther <agx@sigxcpu.org>  Fri, 20 Jun 2008 09:37:02 +0200
+
 python-vobject (0.6.0-1) unstable; urgency=low
 
   * New Upstream Version
