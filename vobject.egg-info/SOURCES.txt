@@ -6,12 +6,15 @@ test_vobject.py
 ez_setup/README.txt
 ez_setup/__init__.py
 test_files/more_tests.txt
+test_files/ms_tzid.ics
 test_files/recurrence.ics
+test_files/ruby_rrule.ics
 test_files/tzid_8bit.ics
 test_files/utf8_test.ics
 vobject/__init__.py
 vobject/base.py
 vobject/behavior.py
+vobject/change_tz.py
 vobject/hcalendar.py
 vobject/icalendar.py
 vobject/ics_diff.py
