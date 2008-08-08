@@ -1,3 +1,12 @@
+python-vobject (0.7.1-1) experimental; urgency=low
+
+  * [43d3667] New Upstream version
+  * [ecc0342] drop support for python 2.4 - the code uses python 2.5
+    constructs
+  * [0b81a6b] update remove_ics.diff patch
+
+ -- Guido Guenther <agx@sigxcpu.org>  Fri, 08 Aug 2008 14:46:19 +0200
+
 python-vobject (0.6.6-1) experimental; urgency=low
 
   * Upload to experimental since it breaks calendarserver:
