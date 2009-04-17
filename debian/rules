@@ -10,6 +10,8 @@ include /usr/share/cdbs/1/rules/patchsys-quilt.mk
 DEB_PYTHON_CLEAN_ARGS = --all
 DEB_PYTHON_INSTALL_ARGS_ALL += --single-version-externally-managed
 
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 build/python-vobject::
-	python test_vobject.py
+		python test_vobject.py
+endif
 
