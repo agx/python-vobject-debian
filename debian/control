@@ -11,6 +11,7 @@ Homepage: http://vobject.skyhouseconsulting.com/
 Package: python-vobject
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-dateutil (>= 1.1)
+Conflicts: calendarserver (<< 2.0)
 Description: parse iCalendar and VCards in Python
  Parses iCalendar and vCard files into Python data structures, decoding the
  relevant encodings. Also serializes vobject data structures to valid iCalendar
