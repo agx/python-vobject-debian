@@ -6,5 +6,5 @@
 # Compulsory line, this is a version 3 file
 version=3
 
-http://vobject.skyhouseconsulting.com/vobject-([\d\.]+)\.tar\.gz
+http://vobject.skyhouseconsulting.com/vobject-([\da-z\.]+)\.tar\.gz
 
