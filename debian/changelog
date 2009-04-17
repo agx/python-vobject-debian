@@ -1,3 +1,17 @@
+python-vobject (0.8.1c-1) experimental; urgency=low
+
+  * [d403e62] Imported Upstream version 0.8.1c
+  * [e66c3d7] rebase ics_diff patch
+  * [20fc2d0] conflict with calendarserver << 2.0 since older version
+              rely on vobject bugs that are now fixed
+              (http://trac.calendarserver.org/ticket/287) (Closes: #491915)
+  * [f03e51c] change maintainer to calendarserver team and bump
+              standards version
+  * [c5d850d] honor nocheck in DEB_BUILD_OPTIONS
+  * [17e1a18] debian/watch: allow letter in the version match
+
+ -- Guido Günther <agx@sigxcpu.org>  Fri, 17 Apr 2009 23:13:41 +0200
+
 python-vobject (0.7.1-1) experimental; urgency=low
 
   * [43d3667] New Upstream version
