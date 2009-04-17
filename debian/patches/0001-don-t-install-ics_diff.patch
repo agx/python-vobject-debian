@@ -1,8 +1,16 @@
+From: =?utf-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 17 Apr 2009 22:46:06 +0200
+Subject: [PATCH] don't install ics_diff
+
+---
+ setup.py |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
 diff --git a/setup.py b/setup.py
-index 1c70429..d2d0ee1 100755
+index d5b59da..f8e9b09 100755
 --- a/setup.py
 +++ b/setup.py
-@@ -48,8 +48,6 @@ setup(name = "vobject",
+@@ -54,8 +54,6 @@ setup(name = "vobject",
        license = "Apache",
        zip_safe = True,
        url = "http://vobject.skyhouseconsulting.com",
@@ -11,3 +19,4 @@ index 1c70429..d2d0ee1 100755
        include_package_data = True,
        test_suite = "test_vobject",
  
+-- 
