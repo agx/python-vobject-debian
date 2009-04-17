@@ -1,6 +1,6 @@
 Metadata-Version: 1.0
 Name: vobject
-Version: 0.7.1
+Version: 0.8.1c
 Summary: VObject: module for reading vCard and vCalendar files
 Home-page: http://vobject.skyhouseconsulting.com
 Author: Jeffrey Harris
@@ -9,7 +9,7 @@ License: Apache
 Description: Description
         -----------
         
-        Parses iCalendar and vCard files into Python data structures, decoding the relevant encodings. Also serializes vobject data structures to iCalendar, vCard, or (expirementally) hCalendar unicode strings.
+        Parses iCalendar and vCard files into Python data structures, decoding the relevant encodings. Also serializes vobject data structures to iCalendar, vCard, or (experimentally) hCalendar unicode strings.
         
         Requirements
         ------------
@@ -18,6 +18,12 @@ Description: Description
         
         Recent changes
         --------------
+        - Make change_tz.py compatible with python 2.4, so the entire package stays compatible
+        - Fall back to default (the most recent standard) behavior if a VCARD
+        or VCALENDAR doesn't have a recognized VERSION
+        - Fixed a bad performance bug when parsing large text bodies, thanks to Morgen Sagen at Apple
+        - Changed license to Apache 2.0 from Apache 1.1
+        - Worked around an issue with Apple Address Book's vcard PHOTO parser
         - Added change_tz module and script for quickly changing event timezones for an
         ics file.  Requires PyICU.
         - Add support for BYMONTHDAY=-1 (days before the end of the month) when setting rrules

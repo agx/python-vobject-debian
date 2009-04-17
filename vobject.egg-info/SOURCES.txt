@@ -1,5 +1,5 @@
 ACKNOWLEDGEMENTS.txt
-LICENSE.txt
+LICENSE-2.0.txt
 README.txt
 setup.py
 test_vobject.py
