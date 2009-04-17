@@ -1,9 +1,10 @@
 Source: python-vobject
 Section: python
 Priority: optional
-Maintainer: Guido Guenther <agx@sigxcpu.org>
+Maintainer: Calendarserver Maintainers <calendarserver-maintainers@lists.alioth.debian.org>
+Uploaders: Guido Günther <agx@sigxcpu.org>
 Build-Depends: cdbs, debhelper (>= 5), python-dev, python-support (>= 0.3), python-dateutil, python-setuptools, quilt
-Standards-Version: 3.8.0
+Standards-Version: 3.8.1
 Vcs-Git: git://git.debian.org/git/calendarserver/python-vobject.git
 Vcs-Browser: http://git.debian.org/?p=calendarserver/python-vobject.git
 Homepage: http://vobject.skyhouseconsulting.com/
