@@ -1,3 +1,11 @@
+python-vobject (0.8.1c-2) unstable; urgency=low
+
+  * Upload to unstable (Closes: #554563)
+  * [0365f3c] Bump standards version
+  * [fda4195] Add README.source
+
+ -- Guido Günther <agx@sigxcpu.org>  Tue, 08 Dec 2009 20:38:38 +0100
+
 python-vobject (0.8.1c-1) experimental; urgency=low
 
   * [d403e62] Imported Upstream version 0.8.1c
