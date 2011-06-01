@@ -1,6 +1,6 @@
 From: Morgen Sagen <sagen@apple.com>
 Date: Mon, 4 Jan 2010 20:26:58 +0100
-Subject: [PATCH] Deepcopy params
+Subject: Deepcopy params
 
 ---
  vobject/base.py |   14 +++++++++-----
