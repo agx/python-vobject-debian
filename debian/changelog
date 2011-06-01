@@ -1,3 +1,12 @@
+python-vobject (0.8.1c-4) unstable; urgency=low
+
+  * [80b984b] Restore original upstream behaviour on unrecognized parameters
+    (Closes: #569273)
+  * [ae6eba8] Normalise year info to be within Python's year bounds. Thanks
+    to Dave Holland for the patch (Closes: #574133)
+
+ -- Guido Günther <agx@sigxcpu.org>  Wed, 01 Jun 2011 20:05:05 +0200
+
 python-vobject (0.8.1c-3) unstable; urgency=low
 
   [ Rahul Amaram ]
