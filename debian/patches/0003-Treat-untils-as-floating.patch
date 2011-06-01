@@ -1,13 +1,13 @@
 From: Morgen Sagen <sagen@apple.com>
 Date: Mon, 4 Jan 2010 20:27:01 +0100
-Subject: [PATCH] Treat untils as floating
+Subject: Treat untils as floating
 
 ---
- vobject/icalendar.py |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
+ vobject/icalendar.py |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
 
 diff --git a/vobject/icalendar.py b/vobject/icalendar.py
-index 4a1da7c..8917476 100644
+index 4a1da7c..b960deb 100644
 --- a/vobject/icalendar.py
 +++ b/vobject/icalendar.py
 @@ -427,6 +427,18 @@ class RecurringComponent(Component):
@@ -38,17 +38,4 @@ index 4a1da7c..8917476 100644
                  del self.contents[name]
              setlist = getattr(rruleset, '_' + name)
              if name in DATENAMES:
-@@ -1663,9 +1675,10 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
-                 else:
-                     current.append(char)
-             else:
--                state = "read normal"
-+                #state = "read normal"
-                 # leave unrecognized escaped characters for later passes
--                current.append('\\' + char)
-+                #current.append('\\' + char)
-+                raise ParseError("error: illegal escape sequence: '\\%s'" % (char,))
- 
-         elif state == "end":    #an end state
-             if len(current) or len(results) == 0:
 -- 
