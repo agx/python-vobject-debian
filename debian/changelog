@@ -1,3 +1,10 @@
+python-vobject (0.8.1c-4.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Build using dh-python. Closes: #786151.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 22 Aug 2015 08:38:11 +0200
+
 python-vobject (0.8.1c-4) unstable; urgency=low
 
   * [80b984b] Restore original upstream behaviour on unrecognized parameters
