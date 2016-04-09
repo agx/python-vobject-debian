@@ -29,13 +29,3 @@ index 4a1da7c..b960deb 100644
                          rule._until = until
                      
                      # add the rrule or exrule to the rruleset
-@@ -473,7 +485,7 @@ class RecurringComponent(Component):
-             untilSerialize = lambda x: dateTimeToString(x, True)
- 
-         for name in DATESANDRULES:
--            if hasattr(self.contents, name):
-+            if name in self.contents:
-                 del self.contents[name]
-             setlist = getattr(rruleset, '_' + name)
-             if name in DATENAMES:
--- 
