@@ -1,10 +1,5 @@
-# Example watch control file for uscan
-# Rename this file to "watch" and then you can run the "uscan" command
-# to check for upstream updates and more.
-# See uscan(1) for format
-
 # Compulsory line, this is a version 3 file
 version=3
 
-http://vobject.skyhouseconsulting.com/vobject-([\da-z\.]+)\.tar\.gz
-
+opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/vobject-$1\.tar\.gz/ \
+	   https://github.com/eventable/vobject/tags .*/v?(\d\S*)\.tar\.gz
