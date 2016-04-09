@@ -1,4 +1,4 @@
-python-vobject (0.9.2-1) UNRELEASED; urgency=medium
+python-vobject (0.9.2-1) unstable; urgency=low
 
   * debian/control: Update upstream homepage.
   * debian/watch: Update upstream download URL.
@@ -12,7 +12,7 @@ python-vobject (0.9.2-1) UNRELEASED; urgency=medium
   * Bump standards version to 3.9.7 (no changes).
   * Convert package to source format 3.0 (quilt).
 
- -- Jelmer Vernooij <jelmer@debian.org>  Sat, 09 Apr 2016 12:28:20 +0000
+ -- Jelmer Vernooĳ <jelmer@debian.org>  Sat, 09 Apr 2016 12:28:20 +0000
 
 python-vobject (0.8.1c-4.1) unstable; urgency=medium
 
