@@ -1,0 +1,9 @@
+*~
+*.log
+*.pyc
+.DS_Store
+build/**/*
+dist/**/*
+vobject.egg-info/**/*
+venv/**/*
+.idea/*
