@@ -1,8 +1,8 @@
-python-vobject (0.8.1c-4.2) UNRELEASED; urgency=medium
+python-vobject (0.8.1c-5) UNRELEASED; urgency=medium
 
-  * Non-maintainer upload.
   * debian/control: Update upstream homepage.
   * debian/watch: Update upstream download URL.
+  * Add myself to uploaders.
 
  -- Jelmer Vernooij <jelmer@debian.org>  Sat, 09 Apr 2016 12:28:20 +0000
 
