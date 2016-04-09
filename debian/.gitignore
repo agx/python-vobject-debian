@@ -1,0 +1,6 @@
+files
+python-module-stampdir/
+*.debhelper
+*.substvars
+python-vobject/
+stamp-patched
