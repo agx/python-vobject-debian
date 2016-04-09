@@ -1,4 +1,3 @@
 0001-don-t-install-ics_diff.patch
-0002-Deepcopy-params.patch
 0003-Treat-untils-as-floating.patch
 0004-Normalise-year-info-to-be-within-Python-s-year-bound.patch
