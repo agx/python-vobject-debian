@@ -3,9 +3,11 @@ Section: python
 Priority: optional
 Maintainer: Calendarserver Maintainers <calendarserver-maintainers@lists.alioth.debian.org>
 Uploaders: Guido Günther <agx@sigxcpu.org>, Jelmer Vernooĳ <jelmer@debian.org>
-Build-Depends: cdbs, debhelper (>= 5), python-dev, dh-python,
+Build-Depends: cdbs, debhelper (>= 5), dh-python,
+ python,
  python-dateutil,
  python-setuptools,
+ python3,
  python3-dateutil,
  python3-setuptools,
 Standards-Version: 3.9.7
