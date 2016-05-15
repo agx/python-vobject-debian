@@ -1,3 +1,11 @@
+python-vobject (0.9.2-2) unstable; urgency=medium
+
+  * [0066201] Python3 support (Closes: #747554)
+  * [fdb34c4] Use https URIs in VCS-* fields
+  * [af34726] Drop superfluous python-dev dependency
+
+ -- Guido Günther <agx@sigxcpu.org>  Sun, 15 May 2016 17:57:44 +0200
+
 python-vobject (0.9.2-1) unstable; urgency=low
 
   * debian/control: Update upstream homepage.
