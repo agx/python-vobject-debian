@@ -3,7 +3,11 @@ Section: python
 Priority: optional
 Maintainer: Calendarserver Maintainers <calendarserver-maintainers@lists.alioth.debian.org>
 Uploaders: Guido Günther <agx@sigxcpu.org>, Jelmer Vernooĳ <jelmer@debian.org>
-Build-Depends: cdbs, debhelper (>= 5), python-dev, dh-python, python-dateutil, python-setuptools
+Build-Depends: cdbs, debhelper (>= 5), python-dev, dh-python,
+ python-dateutil,
+ python-setuptools,
+ python3-dateutil,
+ python3-setuptools,
 Standards-Version: 3.9.7
 Vcs-Git: git://git.debian.org/git/calendarserver/python-vobject.git
 Vcs-Browser: http://git.debian.org/?p=calendarserver/python-vobject.git
@@ -15,5 +19,13 @@ Depends: ${python:Depends}, ${misc:Depends}, python-dateutil (>= 1.1)
 Conflicts: calendarserver (<< 2.0)
 Description: parse iCalendar and VCards in Python
  Parses iCalendar and vCard files into Python data structures, decoding the
+ relevant encodings. Also serializes vobject data structures to valid iCalendar
+ or vCard unicode strings.
+
+Package: python3-vobject
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}, python3-dateutil (>= 1.1)
+Description: parse iCalendar and VCards in Python3
+ Parses iCalendar and vCard files into Python3 data structures, decoding the
  relevant encodings. Also serializes vobject data structures to valid iCalendar
  or vCard unicode strings.
