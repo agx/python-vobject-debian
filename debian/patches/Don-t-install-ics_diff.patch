@@ -1,10 +1,10 @@
-From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+From: =?utf-8?q?Guido_G=C3=BCnther?= <agx@sigxcpu.org>
 Date: Fri, 17 Apr 2009 22:46:06 +0200
 Subject: don't install ics_diff
 
 ---
- setup.py |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
+ setup.py | 6 ------
+ 1 file changed, 6 deletions(-)
 
 diff --git a/setup.py b/setup.py
 index 9c21ad8..d84fa75 100755
