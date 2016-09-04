@@ -1,6 +1,7 @@
 python-vobject (0.9.3-1) UNRELEASED; urgency=medium
 
   * New upstream release.
+  * Bump standards version to 3.9.8 (no changes).
 
  -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 04 Sep 2016 16:45:32 +0000
 
