@@ -516,8 +516,13 @@ class TestVcards(unittest.TestCase):
         #)
         self.assertEqual(
             card.org.value,
-            "University of Novosibirsk, Department of Octopus Parthenogenesis"
+            ["University of Novosibirsk", "Department of Octopus Parthenogenesis"]
         )
+
+        for _ in range(3):
+            new_card = base.readOne(card.serialize())
+            self.assertEqual(new_card.org.value, card.org.value)
+            card = new_card
 
 
 class TestIcalendar(unittest.TestCase):
@@ -655,6 +660,42 @@ class TestIcalendar(unittest.TestCase):
 
         apple = tzs.get('America/Montreal')
         ev.dtstart.value = datetime.datetime(2005, 10, 12, 9, tzinfo=apple)
+
+    def test_pytz_timezone_serializing(self):
+        """
+        Serializing with timezones from pytz test
+        """
+        try:
+            import pytz
+        except ImportError:
+            return self.skipTest("pytz not installed")  # NOQA
+
+        # Avoid conflicting cached tzinfo from other tests
+        def unregister_tzid(tzid):
+            """Clear tzid from icalendar TZID registry"""
+            if icalendar.getTzid(tzid, False):
+                icalendar.registerTzid(tzid, None)
+
+        unregister_tzid('US/Eastern')
+        eastern = pytz.timezone('US/Eastern')
+        cal = base.Component('VCALENDAR')
+        cal.setBehavior(icalendar.VCalendar2_0)
+        ev = cal.add('vevent')
+        ev.add('dtstart').value = eastern.localize(
+            datetime.datetime(2008, 10, 12, 9))
+        serialized = cal.serialize()
+
+        expected_vtimezone = get_test_file("tz_us_eastern.ics")
+        self.assertIn(
+            expected_vtimezone.replace('\r\n', '\n'),
+            serialized.replace('\r\n', '\n')
+        )
+
+        # Exhaustively test all zones (just looking for no errors)
+        for tzname in pytz.all_timezones:
+            unregister_tzid(tzname)
+            tz = icalendar.TimezoneComponent(tzinfo=pytz.timezone(tzname))
+            tz.serialize()
 
     def test_freeBusy(self):
         """
