@@ -1,2 +1,3 @@
-0001-don-t-install-ics_diff.patch
-0003-Treat-untils-as-floating.patch
+Don-t-install-ics_diff.patch
+Treat-untils-as-floating.patch
+vcard-Fix-ORG-fields-with-multiple-components.patch

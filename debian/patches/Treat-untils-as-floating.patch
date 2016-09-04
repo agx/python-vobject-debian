@@ -3,8 +3,8 @@ Date: Mon, 4 Jan 2010 20:27:01 +0100
 Subject: Treat untils as floating
 
 ---
- vobject/icalendar.py |   14 +++++++++++++-
- 1 files changed, 13 insertions(+), 1 deletions(-)
+ vobject/icalendar.py | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/vobject/icalendar.py b/vobject/icalendar.py
 index bfb00df..add91f7 100644
