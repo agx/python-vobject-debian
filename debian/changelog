@@ -1,4 +1,4 @@
-python-vobject (0.9.3-1) UNRELEASED; urgency=medium
+python-vobject (0.9.3-1) unstable; urgency=medium
 
   * New upstream release.
   * Bump standards version to 3.9.8 (no changes).
