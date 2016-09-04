@@ -41,12 +41,6 @@ setup(name = "vobject",
       url = "http://eventable.github.io/vobject/",
       download_url = 'https://github.com/eventable/vobject/tarball/0.9.3',
       bugtrack_url = "https://github.com/eventable/vobject/issues",
-      entry_points = {
-            'console_scripts': [
-                  'ics_diff = vobject.ics_diff:main',
-                  'change_tz = vobject.change_tz:main'
-            ]
-      },
       include_package_data = True,
       install_requires = ['python-dateutil >= 2.4.0'],
       platforms = ["any"],
