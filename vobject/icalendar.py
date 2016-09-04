@@ -478,6 +478,18 @@ class RecurringComponent(Component):
                         if dtstart.tzinfo is None:
                             until = until.replace(tzinfo=None)
 
+                        # RFC2445 actually states that UNTIL must be a UTC value. Whilst the
+                        # changes above work OK, one problem case is if DTSTART is floating but
+                        # UNTIL is properly specified as UTC (or with a TZID). In that case dateutil
+                        # will fail datetime comparisons. There is no easy solution to this as
+                        # there is no obvious timezone (at this point) to do proper floating time
+                        # offset compisons. The best we can do is treat the UNTIL value as floating.
+                        # This could mean incorrect determination of the last instance. The better
+                        # solution here is to encourage clients to use COUNT rather than UNTIL
+                        # when DTSTART is floating.
+                        if dtstart.tzinfo is None:
+                            until = until.replace(tzinfo=None)
+
                         rule._until = until
 
                     # add the rrule or exrule to the rruleset
