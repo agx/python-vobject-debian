@@ -3,4 +3,6 @@ python-module-stampdir/
 *.debhelper
 *.substvars
 python-vobject/
+python3-vobject/
+tmp/
 stamp-patched
