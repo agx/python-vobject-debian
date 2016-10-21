@@ -1,3 +1,26 @@
+python-vobject (0.9.3-2) unstable; urgency=medium
+
+  * Merge 0.9.2-{2,3} changes.
+  * Drop patch Fix-ORG-fields-with-multiple-components: applied
+    upstream.
+
+ -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 04 Sep 2016 16:53:01 +0000
+
+python-vobject (0.9.3-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump standards version to 3.9.8 (no changes).
+
+ -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 04 Sep 2016 16:45:32 +0000
+
+python-vobject (0.9.2-3) unstable; urgency=medium
+
+  * [a2c7f5c] vcard: Fix ORG fields with multiple components (Closes: #833108)
+  * [846ea0b] Drop patch numbers from patches. The order is already in the
+    series file
+
+ -- Guido Günther <agx@sigxcpu.org>  Mon, 01 Aug 2016 08:01:12 +0200
+
 python-vobject (0.9.2-2) unstable; urgency=medium
 
   * [0066201] Python3 support (Closes: #747554)

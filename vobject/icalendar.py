@@ -2,18 +2,36 @@
 
 from __future__ import print_function
 
+import codecs
 import datetime
+import logging
 import random  # for generating a UID
-import six
 import socket
 import string
 
 from dateutil import rrule, tz
+import six
+
+try:
+    import pytz
+except ImportError:
+    class Pytz:
+        """fake pytz module (pytz is not required)"""
+
+        class AmbiguousTimeError(Exception):
+            """pytz error for ambiguous times
+               during transition daylight->standard"""
+
+        class NonExistentTimeError(Exception):
+            """pytz error for non-existent times
+               during transition standard->daylight"""
+
+    pytz = Pytz  # keeps quantifiedcode happy
 
 from . import behavior
 from .base import (VObjectError, NativeError, ValidateError, ParseError,
-                    Component, ContentLine, logger, registerBehavior,
-                    backslashEscape, foldOneLine, str_)
+                   Component, ContentLine, logger, registerBehavior,
+                   backslashEscape, foldOneLine, str_)
 
 
 # ------------------------------- Constants ------------------------------------
@@ -59,9 +77,9 @@ def getTzid(tzid, smart=True):
                 tz = timezone(tzid)
                 registerTzid(toUnicode(tzid), tz)
             except UnknownTimeZoneError as e:
-                print("Error: {0}".format(e))
+                logging.error(e)
         except ImportError as e:
-            print("Error: {0}".format(e))
+            logging.error(e)
     return tz
 
 utc = tz.tzutc()
@@ -203,17 +221,26 @@ class TimezoneComponent(Component):
                         working[transitionTo] = None
                 else:
                     # an offset transition was found
-                    old_offset = tzinfo.utcoffset(transition - twoHours)
+                    try:
+                        old_offset = tzinfo.utcoffset(transition - twoHours)
+                        name = tzinfo.tzname(transition)
+                        offset = tzinfo.utcoffset(transition)
+                    except (pytz.AmbiguousTimeError, pytz.NonExistentTimeError):
+                        # guaranteed that tzinfo is a pytz timezone
+                        is_dst = (transitionTo == "daylight")
+                        old_offset = tzinfo.utcoffset(transition - twoHours, is_dst=is_dst)
+                        name = tzinfo.tzname(transition, is_dst=is_dst)
+                        offset = tzinfo.utcoffset(transition, is_dst=is_dst)
                     rule = {'end'     : None,  # None, or an integer year
                             'start'   : transition,  # the datetime of transition
                             'month'   : transition.month,
                             'weekday' : transition.weekday(),
                             'hour'    : transition.hour,
-                            'name'    : tzinfo.tzname(transition),
+                            'name'    : name,
                             'plus'    : int(
                                 (transition.day - 1)/ 7 + 1),  # nth week of the month
                             'minus'   : fromLastWeek(transition),  # nth from last week
-                            'offset'  : tzinfo.utcoffset(transition),
+                            'offset'  : offset,
                             'offsetfrom' : old_offset}
 
                     if oldrule is None:
@@ -402,11 +429,11 @@ class RecurringComponent(Component):
                                 dtstart = self.due.value
                             else:
                                 # if there's no dtstart, just return None
-                                print('failed to get dtstart with VTODO')
+                                logging.error('failed to get dtstart with VTODO')
                                 return None
                         except (AttributeError, KeyError):
                             # if there's no due, just return None
-                            print('failed to find DUE at all.')
+                            logging.error('failed to find DUE at all.')
                             return None
 
                     # a Ruby iCalendar library escapes semi-colons in rrules,
@@ -448,6 +475,18 @@ class RecurringComponent(Component):
                         # determination of the last instance. The better
                         # solution here is to encourage clients to use COUNT
                         # rather than UNTIL when DTSTART is floating.
+                        if dtstart.tzinfo is None:
+                            until = until.replace(tzinfo=None)
+
+                        # RFC2445 actually states that UNTIL must be a UTC value. Whilst the
+                        # changes above work OK, one problem case is if DTSTART is floating but
+                        # UNTIL is properly specified as UTC (or with a TZID). In that case dateutil
+                        # will fail datetime comparisons. There is no easy solution to this as
+                        # there is no obvious timezone (at this point) to do proper floating time
+                        # offset compisons. The best we can do is treat the UNTIL value as floating.
+                        # This could mean incorrect determination of the last instance. The better
+                        # solution here is to encourage clients to use COUNT rather than UNTIL
+                        # when DTSTART is floating.
                         if dtstart.tzinfo is None:
                             until = until.replace(tzinfo=None)
 
@@ -606,7 +645,7 @@ class TextBehavior(behavior.Behavior):
         if line.encoded:
             encoding = getattr(line, 'encoding_param', None)
             if encoding and encoding.upper() == cls.base64string:
-                line.value = line.value.decode('base64')
+                line.value = codecs.decode(self.value.encode("utf-8"), "base64").decode(encoding)
             else:
                 line.value = stringToTextValues(line.value)[0]
             line.encoded=False
@@ -619,7 +658,7 @@ class TextBehavior(behavior.Behavior):
         if not line.encoded:
             encoding = getattr(line, 'encoding_param', None)
             if encoding and encoding.upper() == cls.base64string:
-                line.value = line.value.encode('base64').replace('\n', '')
+                line.value = codecs.encode(self.value.encode(encoding), "base64").decode("utf-8")
             else:
                 line.value = backslashEscape(str_(line.value))
             line.encoded=True
@@ -1620,7 +1659,7 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
         if strict:
             raise ParseError(msg)
         else:
-            print(msg)
+            logging.error(msg)
 
     # vars which control state machine
     charIterator = enumerate(s)
@@ -1672,7 +1711,8 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
 
         else:
             state = "error"
-            error("error: unknown state: '{0!s}' reached in {1!s}".format(state, s))
+            error("unknown state: '{0!s}' reached in {1!s}".format(state, s))
+
 
 def stringToDurations(s, strict=False):
     """
@@ -1789,7 +1829,8 @@ def stringToDurations(s, strict=False):
 
         else:
             state = "error"
-            error("error: unknown state: '{0!s}' reached in {1!s}".format(state, s))
+            error("unknown state: '{0!s}' reached in {1!s}".format(state, s))
+
 
 def parseDtstart(contentline, allowSignatureMismatch=False):
     """
@@ -1862,9 +1903,21 @@ def getTransition(transitionTo, year, tzinfo):
 
     assert transitionTo in ('daylight', 'standard')
     if transitionTo == 'daylight':
-        def test(dt): return tzinfo.dst(dt) != zeroDelta
+        def test(dt):
+            try:
+                return tzinfo.dst(dt) != zeroDelta
+            except pytz.NonExistentTimeError:
+                return True  # entering daylight time
+            except pytz.AmbiguousTimeError:
+                return False  # entering standard time
     elif transitionTo == 'standard':
-        def test(dt): return tzinfo.dst(dt) == zeroDelta
+        def test(dt):
+            try:
+                return tzinfo.dst(dt) == zeroDelta
+            except pytz.NonExistentTimeError:
+                return False  # entering daylight time
+            except pytz.AmbiguousTimeError:
+                return True  # entering standard time
     newyear = datetime.datetime(year, 1, 1)
     monthDt = firstTransition(generateDates(year), test)
     if monthDt is None:
