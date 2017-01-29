@@ -7,12 +7,12 @@ Subject: don't install ics_diff
  1 file changed, 6 deletions(-)
 
 diff --git a/setup.py b/setup.py
-index a99507b..1589ec5 100755
+index adefc74..1195341 100755
 --- a/setup.py
 +++ b/setup.py
-@@ -41,12 +41,6 @@ setup(name = "vobject",
+@@ -37,12 +37,6 @@ setup(name = "vobject",
        url = "http://eventable.github.io/vobject/",
-       download_url = 'https://github.com/eventable/vobject/tarball/0.9.3',
+       download_url = 'https://github.com/eventable/vobject/tarball/0.9.4.1',
        bugtrack_url = "https://github.com/eventable/vobject/issues",
 -      entry_points = {
 -            'console_scripts': [

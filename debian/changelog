@@ -1,6 +1,7 @@
 python-vobject (0.9.4.1-1) UNRELEASED; urgency=medium
 
   * New upstream version.
+  * Refresh patch Don-t-install-ics_diff.patch.
 
  -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 29 Jan 2017 22:16:11 +0000
 
