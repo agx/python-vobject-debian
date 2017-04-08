@@ -1,9 +1,17 @@
-python-vobject (0.9.4.1-1) UNRELEASED; urgency=medium
+python-vobject (0.9.4.1-1) experimental; urgency=medium
 
+  [ Jelmer Vernooĳ ]
   * New upstream version.
   * Refresh patch Don-t-install-ics_diff.patch.
 
- -- Jelmer Vernooĳ <jelmer@debian.org>  Sun, 29 Jan 2017 22:16:11 +0000
+  [ Guido Günther ]
+  * [594ce57] Switch to debhelper version 9
+  * [81309e9] Drop unused debian/pycompat
+  * [6969ae9] Drop conflict on calendarserver (<< 2.0)
+    which is no longer in the archive
+  * [d89e91e] autopkgtest: run test against installed package
+
+ -- Guido Günther <agx@sigxcpu.org>  Sat, 08 Apr 2017 14:19:54 +0200
 
 python-vobject (0.9.3-3) unstable; urgency=medium
 
