@@ -1,0 +1,8 @@
+Test-Command: cd debian/tests && ./test.sh 2
+Depends: python-vobject, python
+Restrictions: allow-stderr
+
+Test-Command: cd debian/tests && ./test.sh 3
+Depends: python3-vobject, python3
+Restrictions: allow-stderr
+
